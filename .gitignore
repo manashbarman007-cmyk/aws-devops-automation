@@ -1,0 +1,98 @@
+HELP.md
+target/
+.mvn/wrapper/maven-wrapper.jar
+!**/src/main/**/target/
+!**/src/test/**/target/
+
+### STS ###
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings
+.springBeans
+.sts4-cache
+
+### IntelliJ IDEA ###
+.idea
+*.iws
+*.iml
+*.ipr
+
+### NetBeans ###
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
+build/
+!**/src/main/**/build/
+!**/src/test/**/build/
+
+### VS Code ###
+.vscode/
+
+### Terraform ###
+# Local .terraform directory
+.terraform/
+
+# Terraform state files
+*.tfstate
+*.tfstate.*
+
+# Crash log files
+crash.log
+
+# Exclude Terraform variable files (often contain secrets)
+*.tfvars
+*.tfvars.json
+
+# Ignore override files
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+
+# CLI configuration files
+.terraformrc
+terraform.rc
+
+# Terraform plan output
+*.tfplan
+
+# Sensitive lock info (optional - usually keep this)
+.terraform.lock.hcl
+
+# Vault password files
+vault_pass.txt
+.vault_pass
+*.vault
+
+# Private keys
+*.pem
+*.key
+id_rsa
+id_dsa
+
+# Ansible retry files
+*.retry
+
+# Logs
+*.log
+
+# Inventory backups
+inventory.bak
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Python cache (if using custom modules)
+__pycache__/
+*.pyc
+
+# Virtual environments
+venv/
+.env/
+
+

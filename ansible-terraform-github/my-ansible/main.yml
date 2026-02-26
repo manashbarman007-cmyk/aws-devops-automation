@@ -1,0 +1,12 @@
+---
+- name: Full EC2 automation setup
+  hosts: servers
+  become: yes
+  roles:
+    - aws-cli
+    - docker-engine
+    - jenkins
+    - kubectl
+    - maven
+    - setup
+    - zip-unzip

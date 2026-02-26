@@ -1,0 +1,104 @@
+---
+# tasks file for setup
+
+############################################################
+# Ensure .kube directory for SSH user
+############################################################
+
+- name: Ensure kube directory exists for SSH user
+  ansible.builtin.file:
+    path: "/home/{{ ansible_user }}/.kube"
+    state: directory
+    mode: '0700'
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+  become: true
+
+
+############################################################
+# Update kubeconfig for SSH user
+############################################################
+
+- name: Update kubeconfig for SSH user
+  ansible.builtin.command: >
+    aws eks --region {{ aws_region }}
+    update-kubeconfig
+    --name {{ eks_cluster_name }}
+    --kubeconfig /home/{{ ansible_user }}/.kube/config
+  become: true
+  changed_when: false
+
+- name: Fix ownership of SSH user kubeconfig
+  ansible.builtin.file:
+    path: "/home/{{ ansible_user }}/.kube"
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    recurse: yes
+  become: true
+
+
+############################################################
+# Ensure .kube directory for Jenkins
+############################################################
+
+- name: Ensure kube directory exists for Jenkins
+  ansible.builtin.file:
+    path: /var/lib/jenkins/.kube
+    state: directory
+    owner: jenkins
+    group: jenkins
+    mode: '0700'
+  become: true
+
+
+############################################################
+# Update kubeconfig for Jenkins
+############################################################
+
+- name: Update kubeconfig for Jenkins
+  ansible.builtin.command: >
+    aws eks --region {{ aws_region }}
+    update-kubeconfig
+    --name {{ eks_cluster_name }}
+    --kubeconfig /var/lib/jenkins/.kube/config
+  become: true
+  changed_when: false
+
+- name: Fix ownership of Jenkins kubeconfig
+  ansible.builtin.file:
+    path: /var/lib/jenkins/.kube
+    owner: jenkins
+    group: jenkins
+    recurse: yes
+  become: true
+
+
+############################################################
+# Docker Group Configuration
+############################################################
+
+- name: Add SSH user to docker group
+  ansible.builtin.user:
+    name: "{{ ansible_user }}"
+    groups: docker
+    append: yes
+  become: true
+
+- name: Add Jenkins to docker group
+  ansible.builtin.user:
+    name: jenkins
+    groups: docker
+    append: yes
+  become: true
+
+
+############################################################
+# Ensure Jenkins service is restarted and enabled
+############################################################
+
+- name: Ensure Jenkins is restarted and enabled
+  ansible.builtin.service:
+    name: jenkins
+    state: restarted
+    enabled: yes
+  become: true

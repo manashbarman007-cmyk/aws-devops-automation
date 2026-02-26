@@ -1,0 +1,33 @@
+# SPDX-License-Identifier: MIT-0
+---
+# tasks file for aws-cli
+
+- name: Update apt package index
+  ansible.builtin.apt:
+    update_cache: yes
+  become: true
+
+- name: Install required packages for AWS CLI
+  ansible.builtin.apt:
+    name:
+      - curl
+    state: present
+  become: true
+
+- name: Download AWS CLI installer
+  ansible.builtin.get_url:
+    url: "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip"
+    dest: "/tmp/awscliv2.zip"
+    mode: '0644'
+
+- name: Unzip AWS CLI installer
+  ansible.builtin.unarchive:
+    src: "/tmp/awscliv2.zip"
+    dest: "/tmp"
+    remote_src: yes
+
+- name: Run AWS CLI installer
+  ansible.builtin.command: "/tmp/aws/install"
+  args:
+    creates: /usr/local/bin/aws
+  become: true
