@@ -299,6 +299,7 @@ Developer Commit
 ## ⚙️ Prerequisites
 
 - AWS account
+  
 - Docker Hub account
 - Jenkins credentials configured:
 - Docker Hub credentials ID: `dockerhub-credentials`
@@ -335,24 +336,18 @@ mvn clean package -DskipTests
 ### 3️⃣ Docker Image Push
 
 - Logs in to Docker Hub using Jenkins credentials
-
 - Tags the image:
 
   `manashbarman007/app:v-${BUILD_NUMBER}`
 
-
 - Pushes the image to Docker Hub
-
 - Logs out after push
 
 ### 4️⃣ Deploy to Kubernetes
 
 - Applies Kubernetes manifests from the k8s/ directory
-
 - Updates the Deployment image dynamically
-
 - Waits for rollout completion
-
 - Automatically rolls back on deployment failure
 
 ### 5️⃣ Cleanup
@@ -371,65 +366,41 @@ docker system prune -f
 ### 🔹 Deployment
 
 - Name: myapp
-
 - Namespace: demo
-
 - Replicas: 4
-
 - Strategy: RollingUpdate
-
   `maxSurge: 25%`
-
   `maxUnavailable: 25%`
-
   `Container Port: 8081`
-
 - Image updated dynamically by Jenkins
-
 - Readiness Probe:
-
   `/actuator/health/readiness`
-
-
 - Resource Requests:
-
   `CPU: 100m`
-
   `Memory: 100Mi`
-
 - Resource Limits:
-
   `CPU: 500m`
-
   `Memory: 256Mi`
 
 ### 🔹 Service
 
 - Name: myapp-svc
-
 - Namespace: demo
-
 - Type: LoadBalancer
-
 - Exposes application on port `80`
-
 - Routes traffic to container port `8081`
 
 ### 🚀 How to Deploy
 
 - Run the setup script to install tools and create the EKS cluster
-
-- Access Jenkins:
-
-  `http://<server-ip>:8080`
-
-
+- Access Jenkins: From your work machine forward the port to connect to the Private EC2 port 8080 via the Bastion EC2
+  ```bash
+  ssh -i /path/to/key -L 8080:<Private-EC2-Private-IP>:8080 ubuntu@<Bation-Public-IP>
+  ```
+- Now from your browser hit `http://localhost:8080` and access Jenkins
 - Create a Jenkins Pipeline job
-
 - Configure SCM to point to this repository
-
 - Trigger the pipeline
-
 - Jenkins will:
 
    `Build the Java application`
@@ -454,37 +425,25 @@ This ensures fast recovery to the previous stable version.
 ### 🧯 Troubleshooting
 
 - Docker permission denied
-
 - Not logged out and logged in the machine after user was added to the docker group or run the below command as alternatice : 
   ``` bash
    newgrp docker
   ```
-
 - kubectl not working in Jenkins
-
 - Ensure AWS credentials are configured for the jenkins user
-
 - Verify kubeconfig exists for Jenkins user
-
 - Pods stuck in Pending or NotReady
-
 ``` bash
  kubectl describe pod <pod-name> -n demo
-
 ```
 
 ### ✨ Key Highlights
 
 - End-to-end CI/CD automation
-
 - Infrastructure provisioning + application deployment
-
 - Jenkins-driven Docker image versioning
-
 - Kubernetes rolling updates with readiness probes
-
 - Automated rollback on failure
-
 - Production-grade DevOps workflow
 
 ---
