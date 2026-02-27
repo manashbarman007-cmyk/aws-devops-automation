@@ -253,6 +253,11 @@ Configure the `inventory.ini` according to your Private EC2 IP and Private key l
 
 ### 🚀 Run Playbooks
 
+- Add the Private EC2 **host fingerprint** on the Bastion EC2
+```
+ssh ubuntu@<Private-IP-Of-Private-EC2>
+```
+
 ```
 ansible-playbook main.yml
 ```
