@@ -1,13 +1,267 @@
-# 🚀 CI/CD Pipeline with Jenkins, Docker & Kubernetes on AWS EKS
+# 🚀 CI/CD Pipeline with Jenkins, Docker & Kubernetes on AWS EKS 
 
-This project demonstrates a **production-ready CI/CD pipeline** that builds a Java application, packages it into a Docker image, pushes it to Docker Hub, and deploys it to **AWS EKS** using **Jenkins** and **Kubernetes rolling updates**.
+This project demonstrates a **production-ready CI/CD pipeline** that:
+- Builds a Java 21 application using Maven
+- Containerizes it using Docker
+- Pushes versioned images to Docker Hub
+- Deploys to a private AWS EKS cluster
+- Performs zero-downtime rolling updates
+- Automatically rolls back on failure
 
-It also includes a **one-shot automation script** to set up all required tools and provision an EKS cluster on Ubuntu.
+The pipeline simulates a real-world DevOps workflow with automated build, versioning, deployment, and recovery strategies.
 
 ---
 
-## 📌 Architecture Overview
+## 🏗️ Infrastructure Provisioning (Terraform)
 
+This project uses Terraform to provision AWS infrastructure in a modular and production-style architecture.
+
+### 🔹 Infrastructure Components
+
+- Custom VPC with public & private subnets
+- Internet Gateway & Route Tables
+- Bastion Host (Public EC2)
+- Private EC2 Instance
+- Private Amazon EKS Cluster
+- IAM Roles & Instance Profiles
+- Security Groups
+
+### 📂 Terraform Structure
+
+- Creat your own key pair in the folder `my-terraform/bastion-ec2/` and name it as `key-ec2`
+```bash
+    ssh-keygen
+```
+```
+my-terraform
+├── main.tf
+├── modules
+│   ├── bastion-ec2
+│   │   ├── iam.tf
+│   │   ├── key-ec2.example
+│   │   ├── key-ec2.pub.example
+│   │   ├── key-pair.tf
+│   │   ├── main.tf
+│   │   ├── output.tf
+│   │   ├── script.sh
+│   │   ├── security-grp.tf
+│   │   └── variables.tf
+│   ├── eks
+│   │   ├── main.tf
+│   │   ├── output.tf
+│   │   ├── security-grp.tf
+│   │   └── variables.tf
+│   ├── private-ec2
+│   │   ├── iam.tf
+│   │   ├── main.tf
+│   │   ├── output.tf
+│   │   ├── security-grp.tf
+│   │   └── variables.tf
+│   └── vpc
+│       ├── main.tf
+│       └── output.tf
+├── outputs.tf
+├── provider.tf
+├── terraform.tf
+├── terraform.tfstate
+├── terraform.tfstate.backup
+└── variables.tf
+```
+
+### 🚀 Deployment Steps
+
+- Initialize
+```
+terraform init
+```
+- Validate
+```
+terraform validate
+```
+- Plan
+```
+terraform plan
+```
+- Apply
+```
+terraform apply -auto-approve
+```
+
+### 🏠 Terraform provisions:
+
+- Secure networking layer
+- Bastion access layer
+- Private compute layer
+- Fully configured EKS cluster
+
+🔐 Security Design
+
+- EKS endpoint configured as private
+- Worker nodes in private subnets
+- No direct public access to private EC2
+- Bastion host used as secure jump server
+- IAM roles used instead of static credentials
+
+---
+
+## 🖥️ Configuration Management (Ansible)
+
+Ansible is used to automate server provisioning and tool installation after infrastructure creation.
+
+### 🔹 Automation Tasks
+
+- Install Docker
+- Install Java 21
+- Install AWS CLI
+- Install Maven
+- Install Kubectl
+- Install Jenkins
+- Configure system dependencies
+- Prepare environment for CI/CD pipeline
+
+### 📂 Ansible Structure
+
+Configure the `inventory.ini` according to your Private EC2 IP and Private key location. 
+
+```
+├── my-ansible
+│   ├── ansible.cfg
+│   ├── aws-cli
+│   │   ├── README.md
+│   │   ├── defaults
+│   │   │   └── main.yml
+│   │   ├── files
+│   │   ├── handlers
+│   │   │   └── main.yml
+│   │   ├── meta
+│   │   │   └── main.yml
+│   │   ├── tasks
+│   │   │   └── main.yml
+│   │   ├── templates
+│   │   ├── tests
+│   │   │   ├── inventory
+│   │   │   └── test.yml
+│   │   └── vars
+│   │       └── main.yml
+│   ├── docker-engine
+│   │   ├── README.md
+│   │   ├── defaults
+│   │   │   └── main.yml
+│   │   ├── files
+│   │   ├── handlers
+│   │   │   └── main.yml
+│   │   ├── meta
+│   │   │   └── main.yml
+│   │   ├── tasks
+│   │   │   └── main.yml
+│   │   ├── templates
+│   │   ├── tests
+│   │   │   ├── inventory
+│   │   │   └── test.yml
+│   │   └── vars
+│   │       └── main.yml
+│   ├── inventory.ini
+│   ├── jenkins
+│   │   ├── README.md
+│   │   ├── defaults
+│   │   │   └── main.yml
+│   │   ├── files
+│   │   ├── handlers
+│   │   │   └── main.yml
+│   │   ├── meta
+│   │   │   └── main.yml
+│   │   ├── tasks
+│   │   │   └── main.yml
+│   │   ├── templates
+│   │   ├── tests
+│   │   │   ├── inventory
+│   │   │   └── test.yml
+│   │   └── vars
+│   │       └── main.yml
+│   ├── key-ec2
+│   ├── kubectl
+│   │   ├── README.md
+│   │   ├── defaults
+│   │   │   └── main.yml
+│   │   ├── files
+│   │   ├── handlers
+│   │   │   └── main.yml
+│   │   ├── meta
+│   │   │   └── main.yml
+│   │   ├── tasks
+│   │   │   └── main.yml
+│   │   ├── templates
+│   │   ├── tests
+│   │   │   ├── inventory
+│   │   │   └── test.yml
+│   │   └── vars
+│   │       └── main.yml
+│   ├── main.yml
+│   ├── maven
+│   │   ├── README.md
+│   │   ├── defaults
+│   │   │   └── main.yml
+│   │   ├── files
+│   │   ├── handlers
+│   │   │   └── main.yml
+│   │   ├── meta
+│   │   │   └── main.yml
+│   │   ├── tasks
+│   │   │   └── main.yml
+│   │   ├── templates
+│   │   ├── tests
+│   │   │   ├── inventory
+│   │   │   └── test.yml
+│   │   └── vars
+│   │       └── main.yml
+│   ├── setup
+│   │   ├── README.md
+│   │   ├── defaults
+│   │   │   └── main.yml
+│   │   ├── files
+│   │   ├── handlers
+│   │   │   └── main.yml
+│   │   ├── meta
+│   │   │   └── main.yml
+│   │   ├── tasks
+│   │   │   └── main.yml
+│   │   ├── templates
+│   │   ├── tests
+│   │   │   ├── inventory
+│   │   │   └── test.yml
+│   │   └── vars
+│   │       └── main.yml
+│   └── zip-unzip
+│       ├── README.md
+│       ├── defaults
+│       │   └── main.yml
+│       ├── files
+│       ├── handlers
+│       │   └── main.yml
+│       ├── meta
+│       │   └── main.yml
+│       ├── tasks
+│       │   └── main.yml
+│       ├── templates
+│       ├── tests
+│       │   ├── inventory
+│       │   └── test.yml
+│       └── vars
+│           └── main.yml
+
+```
+
+### 🚀 Run Playbooks
+
+```
+ansible-playbook main.yml
+```
+
+---
+
+## 📌 CI/CD Architecture Overview
+
+```
 Developer Commit
       |
    Jenkins
@@ -19,7 +273,7 @@ Developer Commit
  AWS EKS (Kubernetes)
       |
  LoadBalancer Service → Application
-
+```
  
 ---
 
@@ -31,64 +285,23 @@ Developer Commit
 - Jenkins
 - Kubernetes
 - AWS EKS
-- eksctl
 - AWS CLI
+- Terraform
+- Ansible
 
 ---
 
 ## ⚙️ Prerequisites
 
-- Ubuntu (20.04+ recommended)
 - AWS account
-- IAM user with EKS permissions
 - Docker Hub account
 - Jenkins credentials configured:
 - Docker Hub credentials ID: `dockerhub-credentials`
-
----
-
-## 🛠️ Automated Setup Script
-
-### 📄 aws-project.sh
-
-This script installs and configures:
-
-- OpenJDK 21
-- Jenkins
-- Maven
-- Docker Engine
-- kubectl
-- AWS CLI
-- eksctl
-- zip / unzip
-- Creates an EKS cluster
-- Configures kubectl for both user and Jenkins
-- Enables Jenkins & Docker services
-- Adds Jenkins to Docker group
-- Creates Kubernetes namespace `demo`
-
-### ▶️ Usage
-
-```bash
-chmod +x aws-project.sh
-
-./aws-project.sh <cluster> <region> <nodegroup> <nodes> <min> <max> <instance-type>
-
+- Create the appropriate namespace for the EKS cluster in the Private EC2 node
+```
+kubectl create namespace demo
 ```
 
-### 📝 Example 
-
-```bash
-./aws-project.sh demo-cluster ap-south-1 demo-ng 2 1 3 t3.medium
-
-```
-
-### ⚠️ Ensure AWS CLI is configured before running the script:
-
-```bash
-aws configure
-
-```
 ---
 
 ## 🔄 Jenkins CI/CD Pipeline
